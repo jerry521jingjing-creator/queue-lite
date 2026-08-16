@@ -1,0 +1,59 @@
+{
+  "experiment": "015-Dogfood",
+  "name": "Real User Feedback Loop (Dogfood)",
+  "repo": "https://github.com/jerry521jingjing-creator/queue-lite",
+  "status": "COMPLETE",
+  "method": "Internal dogfooding — maintainer uses own library for real task",
+  "use_case": "Batch markdown-to-HTML converter (md2html.js)",
+  "real_task": "Convert 14 markdown docs to HTML using queue-lite",
+  "friction_points_found": [
+    {
+      "id": "FP-001",
+      "type": "module_format",
+      "description": "CommonJS require + top-level await causes ERR_AMBIGUOUS_MODULE_SYNTAX",
+      "severity": "medium",
+      "resolution": "Wrap await in .then() for CommonJS compatibility"
+    },
+    {
+      "id": "FP-002",
+      "type": "stats_inaccuracy",
+      "description": "Rate-limited tasks invisible to stats — progress shows 10/10 for 14 files",
+      "severity": "high",
+      "resolution": "Added rateLimited counter to stats (Issue #16, PR #17)",
+      "evidence": "md2html.js showed 10/10 progress when 14 files existed"
+    }
+  ],
+  "issues_created": [
+    {"number": 16, "title": "bug: Rate-limited tasks not tracked in stats", "state": "CLOSED"}
+  ],
+  "prs_merged": [
+    {"number": 17, "title": "fix: Track rate-limited tasks in stats", "state": "MERGED"}
+  ],
+  "dogfood_metrics": {
+    "files_processed": 14,
+    "tasks_queued": 14,
+    "tasks_completed": 14,
+    "tasks_rate_limited": 0,
+    "bugs_found": 1,
+    "bugs_fixed": 1,
+    "time_to_fix": "1 cycle"
+  },
+  "cycle": {
+    "observe": "md2html.js shows 10/10 for 14 files",
+    "analyze": "Rate-limited tasks not counted in stats",
+    "prioritize": "High — breaks progress tracking",
+    "implement": "Added rateLimited counter",
+    "release": "PR #17 merged",
+    "measure": "51/51 tests pass, stats now accurate"
+  },
+  "lessons": [
+    "Dogfooding finds bugs that tests miss (progress counter discrepancy)",
+    "Real usage reveals API ergonomics issues (module format)",
+    "Stats accuracy is critical for monitoring — invisible failures are dangerous",
+    "One real use case is worth 100 simulated tests"
+  ],
+  "linkdoctor": {
+    "tests": 229,
+    "status": "UNCHANGED"
+  }
+}

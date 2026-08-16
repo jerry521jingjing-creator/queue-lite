@@ -59,7 +59,14 @@ class Queue {
         this._queue.splice(insertIdx, 0, task);
       }
       
-      this._processNext();
+      // Defer processing to allow batch enqueue in same tick
+      if (!this._processScheduled) {
+        this._processScheduled = true;
+        Promise.resolve().then(() => {
+          this._processScheduled = false;
+          this._processNext();
+        });
+      }
     });
   }
 

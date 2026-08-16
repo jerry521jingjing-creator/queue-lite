@@ -75,6 +75,7 @@ class Queue {
    */
   pause() {
     this._paused = true;
+    this._processScheduled = false;
   }
 
   /**
@@ -82,6 +83,8 @@ class Queue {
    */
   resume() {
     this._paused = false;
+    // Cancel any pending deferred processing and restart fresh
+    this._processScheduled = false;
     this._processNext();
   }
 

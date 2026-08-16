@@ -13,6 +13,7 @@ export interface QueueOptions {
 export interface PushOptions {
   priority?: number;
   timeout?: number;
+  dedupKey?: string;
 }
 
 export interface TaskResult<T = any> {
@@ -25,6 +26,8 @@ export interface QueueStats {
   completed: number;
   failed: number;
   retried: number;
+  deduplicated: number;
+  rateLimited: number;
   pending: number;
   running: number;
   paused: boolean;
@@ -47,6 +50,8 @@ export default class Queue extends EventEmitter {
   readonly timeout: number;
   readonly retryDelay: number;
   readonly maxRetries: number;
+  readonly rateLimit: number;
+  readonly rateBurst: number;
   readonly pending: number;
   readonly idle: boolean;
   
@@ -55,4 +60,5 @@ export default class Queue extends EventEmitter {
   resume(): void;
   drainAll(): Promise<void>;
   stats(): QueueStats;
+  resetStats(): void;
 }

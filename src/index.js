@@ -179,8 +179,8 @@ class Queue {
       clearTimeout(timer);
       this._running.delete(task);
       this._stats.completed++;
-      task.resolve(result);
       if (this._onComplete) this._onComplete(result);
+      task.resolve(result);
     } catch (err) {
       clearTimeout(timer);
       

@@ -18,7 +18,7 @@ class Queue extends EventEmitter {
     this.concurrency = opts.concurrency || 3;
     this.timeout = opts.timeout || 30000;
     this.retryDelay = opts.retryDelay || 1000;
-    this.maxRetries = opts.maxRetries || 3;
+    this.maxRetries = opts.maxRetries != null ? opts.maxRetries : 3;
     this.rateLimit = opts.rateLimit || 0; // tasks per second, 0 = unlimited
     this.rateBurst = opts.rateBurst || opts.rateLimit || 0;
     
@@ -52,6 +52,9 @@ class Queue extends EventEmitter {
     }
     if (opts.timeout != null && (typeof opts.timeout !== 'number' || opts.timeout <= 0)) {
       throw new TypeError(`options.timeout must be a positive number, got ${opts.timeout}`);
+    }
+    if (opts.dedupKey != null && typeof opts.dedupKey !== 'string') {
+      throw new TypeError(`options.dedupKey must be a string, got ${typeof opts.dedupKey}`);
     }
     
     const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -184,10 +187,24 @@ class Queue extends EventEmitter {
   }
 
   /**
+   * Reset stats counters
+   */
+  resetStats() {
+    this._stats = { completed: 0, failed: 0, retried: 0, deduplicated: 0, rateLimited: 0 };
+  }
+
+  /**
    * Get pending task count
    */
   get pending() {
     return this._queue.length;
+  }
+
+  /**
+   * Get running task count
+   */
+  get running() {
+    return this._running.size;
   }
 
   /**

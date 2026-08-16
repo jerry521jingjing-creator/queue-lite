@@ -33,7 +33,7 @@ class Queue extends EventEmitter {
     
     this._onComplete = opts.onComplete || null;
     this._onError = opts.onError || null;
-    this._onDrain = opts.onDrain || null;
+    this._onDrainCallbacks = opts.onDrain ? [opts.onDrain] : [];
   }
 
   /**
@@ -197,11 +197,7 @@ class Queue extends EventEmitter {
   drainAll() {
     if (this.idle) return Promise.resolve();
     return new Promise(resolve => {
-      const origDrain = this._onDrain;
-      this._onDrain = () => {
-        if (origDrain) origDrain();
-        resolve();
-      };
+      this._onDrainCallbacks.push(resolve);
     });
   }
 
@@ -223,11 +219,10 @@ class Queue extends EventEmitter {
       this._execute(task);
     }
     
-    if (this.idle && this._onDrain) {
-      this._onDrain();
-    }
     if (this.idle) {
       this.emit('drain');
+      this._onDrainCallbacks.forEach(function(cb) { cb(); });
+      this._onDrainCallbacks = [];
     }
   }
 

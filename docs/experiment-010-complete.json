@@ -1,0 +1,76 @@
+{
+  "experiment": "010",
+  "name": "GitHub Native Engineering Loop",
+  "repo": "gh-engineering",
+  "status": "COMPLETE",
+  "workflow_validated": [
+    "Issue → Planner → Branch → Code → Test → PR → Review → Merge → Lesson"
+  ],
+  "initial": {
+    "commit": "4f2db11",
+    "tests": 9,
+    "pass": 8,
+    "fail": 1
+  },
+  "final": {
+    "commit": "bbad708",
+    "tests": 16,
+    "pass": 16,
+    "fail": 0
+  },
+  "prs": [
+    {
+      "number": 1,
+      "branch": "fix/priority-ordering",
+      "type": "bugfix",
+      "description": "Fix priority ordering with deferred microtask processing",
+      "issue": "#1",
+      "review": "APPROVE",
+      "merged": true,
+      "tests_before": "9 pass, 1 fail",
+      "tests_after": "9 pass, 0 fail"
+    },
+    {
+      "number": 2,
+      "branch": "fix/pause-resume-race",
+      "type": "bugfix",
+      "description": "Fix race condition between pause() and resume()",
+      "issue": "#2",
+      "review": "APPROVE",
+      "merged": true,
+      "tests_before": "9 pass",
+      "tests_after": "13 pass"
+    },
+    {
+      "number": 3,
+      "branch": "feat/drain-all",
+      "type": "feature",
+      "description": "Add drainAll() method for awaiting queue completion",
+      "issue": "#3",
+      "review": "APPROVE",
+      "merged": true,
+      "tests_before": "13 pass",
+      "tests_after": "16 pass"
+    }
+  ],
+  "git_workflow": {
+    "issues_created": 3,
+    "branches_created": 3,
+    "commits_on_branches": 3,
+    "prs_created": 3,
+    "reviews_completed": 3,
+    "merges_completed": 3,
+    "merge_strategy": "--no-ff ( preserves branch history)"
+  },
+  "lessons": [
+    "Promise.resolve().then() for microtask batching in event-driven systems",
+    "pause/resume must cancel deferred processing to avoid race conditions",
+    "drainAll() pattern: wrap existing callback in promise for async/await support",
+    "Branch-per-fix workflow ensures clean history and reviewability"
+  ],
+  "linkdoctor": {
+    "tests": 229,
+    "status": "UNCHANGED"
+  },
+  "github_auth_status": "NOT_AUTHENTICATED — full GitHub push requires `gh auth login`"
+}

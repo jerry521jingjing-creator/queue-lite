@@ -34,40 +34,61 @@ class Queue {
    * @returns {Promise} resolves with task result
    */
   push(fn, opts = {}) {
-    return new Promise((resolve, reject) => {
-      const task = {
-        fn,
-        priority: opts.priority || 0,
-        timeout: opts.timeout || this.timeout,
-        retries: 0,
-        resolve,
-        reject,
-        enqueuedAt: Date.now(),
-      };
-      
-      // BUG: silently drops task if queue is paused
-      if (this._paused) {
-        reject(new Error('Queue is paused'));
-        return;
-      }
-      
-      // Insert by priority (higher = first)
-      const insertIdx = this._queue.findIndex(t => t.priority < task.priority);
-      if (insertIdx === -1) {
-        this._queue.push(task);
-      } else {
-        this._queue.splice(insertIdx, 0, task);
-      }
-      
-      // Defer processing to allow batch enqueue in same tick
-      if (!this._processScheduled) {
-        this._processScheduled = true;
-        Promise.resolve().then(() => {
-          this._processScheduled = false;
-          this._processNext();
-        });
-      }
+    const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    let _resolve, _reject;
+    
+    const promise = new Promise((resolve, reject) => {
+      _resolve = resolve;
+      _reject = reject;
     });
+    
+    const task = {
+      taskId,
+      fn,
+      priority: opts.priority || 0,
+      timeout: opts.timeout || this.timeout,
+      retries: 0,
+      resolve: _resolve,
+      reject: _reject,
+      enqueuedAt: Date.now(),
+      cancelled: false,
+    };
+    
+    if (this._paused) {
+      _reject(new Error('Queue is paused'));
+      return { taskId, promise, cancel: () => false };
+    }
+    
+    // Insert by priority (higher = first)
+    const insertIdx = this._queue.findIndex(t => t.priority < task.priority);
+    if (insertIdx === -1) {
+      this._queue.push(task);
+    } else {
+      this._queue.splice(insertIdx, 0, task);
+    }
+    
+    // Defer processing to allow batch enqueue in same tick
+    if (!this._processScheduled) {
+      this._processScheduled = true;
+      Promise.resolve().then(() => {
+        this._processScheduled = false;
+        this._processNext();
+      });
+    }
+    
+    const cancel = () => {
+      if (task.cancelled) return false;
+      const idx = this._queue.indexOf(task);
+      if (idx !== -1) {
+        this._queue.splice(idx, 1);
+        task.cancelled = true;
+        _reject(new Error('Task cancelled'));
+        return true;
+      }
+      return false;
+    };
+    
+    return { taskId, promise, cancel };
   }
 
   /**

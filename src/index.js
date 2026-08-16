@@ -19,12 +19,17 @@ class Queue extends EventEmitter {
     this.timeout = opts.timeout || 30000;
     this.retryDelay = opts.retryDelay || 1000;
     this.maxRetries = opts.maxRetries || 3;
+    this.rateLimit = opts.rateLimit || 0; // tasks per second, 0 = unlimited
+    this.rateBurst = opts.rateBurst || opts.rateLimit || 0;
     
     this._queue = [];
     this._running = new Set();
     this._paused = false;
-    this._stats = { completed: 0, failed: 0, retried: 0 };
+    this._stats = { completed: 0, failed: 0, retried: 0, deduplicated: 0 };
     this._totalEnqueued = 0;
+    this._dedupKeys = new Set(); // for dedup tracking
+    this._rateTokens = this.rateBurst;
+    this._rateLastRefill = Date.now();
     
     this._onComplete = opts.onComplete || null;
     this._onError = opts.onError || null;
@@ -57,6 +62,16 @@ class Queue extends EventEmitter {
       _reject = reject;
     });
     
+    // Task deduplication
+    if (opts.dedupKey) {
+      if (this._dedupKeys.has(opts.dedupKey)) {
+        this._stats.deduplicated++;
+        _reject(new Error(`Duplicate task: ${opts.dedupKey}`));
+        return { taskId, promise, cancel: () => false };
+      }
+      this._dedupKeys.add(opts.dedupKey);
+    }
+    
     const task = {
       taskId,
       fn,
@@ -67,11 +82,24 @@ class Queue extends EventEmitter {
       reject: _reject,
       enqueuedAt: Date.now(),
       cancelled: false,
+      dedupKey: opts.dedupKey || null,
     };
     
     if (this._paused) {
+      if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
       _reject(new Error('Queue is paused'));
       return { taskId, promise, cancel: () => false };
+    }
+    
+    // Rate limiting check
+    if (this.rateLimit > 0) {
+      this._refillTokens();
+      if (this._rateTokens <= 0) {
+        if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
+        _reject(new Error('Rate limit exceeded'));
+        return { taskId, promise, cancel: () => false };
+      }
+      this._rateTokens--;
     }
     
     // Insert by priority (higher = first)
@@ -100,6 +128,7 @@ class Queue extends EventEmitter {
       if (idx !== -1) {
         this._queue.splice(idx, 1);
         task.cancelled = true;
+        if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
         _reject(new Error('Task cancelled'));
         return true;
       }
@@ -107,6 +136,20 @@ class Queue extends EventEmitter {
     };
     
     return { taskId, promise, cancel };
+  }
+
+  /**
+   * Refill rate limit tokens based on elapsed time
+   */
+  _refillTokens() {
+    if (this.rateLimit <= 0) return;
+    const now = Date.now();
+    const elapsed = (now - this._rateLastRefill) / 1000;
+    this._rateTokens = Math.min(
+      this.rateBurst,
+      this._rateTokens + elapsed * this.rateLimit
+    );
+    this._rateLastRefill = now;
   }
 
   /**
@@ -193,6 +236,7 @@ class Queue extends EventEmitter {
       task.reject(new Error(`Task timed out after ${task.timeout}ms`));
       this._running.delete(task);
       this._stats.failed++;
+      if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
       this.emit('task:fail', task.taskId, new Error(`Task timed out after ${task.timeout}ms`));
       this.emit('progress', this._stats.completed, this._totalEnqueued);
       this._processNext();
@@ -203,6 +247,7 @@ class Queue extends EventEmitter {
       clearTimeout(timer);
       this._running.delete(task);
       this._stats.completed++;
+      if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
       this.emit('task:complete', task.taskId, result);
       this.emit('progress', this._stats.completed, this._totalEnqueued);
       if (this._onComplete) this._onComplete(result);
@@ -224,6 +269,7 @@ class Queue extends EventEmitter {
       } else {
         this._running.delete(task);
         this._stats.failed++;
+        if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
         this.emit('task:fail', task.taskId, err);
         this.emit('progress', this._stats.completed, this._totalEnqueued);
         task.reject(err);

@@ -1,0 +1,8 @@
+{
+  "name": "queue-lite",
+  "version": "1.0.0",
+  "description": "Lightweight task queue with retry and timeout",
+  "main": "src/index.js",
+  "scripts": { "test": "node --test test/*.test.js" },
+  "license": "MIT"
+}

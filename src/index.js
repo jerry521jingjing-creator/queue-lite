@@ -10,8 +10,11 @@
  * Known issue: tasks silently fail when queue is paused
  */
 
-class Queue {
+const EventEmitter = require('events');
+
+class Queue extends EventEmitter {
   constructor(opts = {}) {
+    super();
     this.concurrency = opts.concurrency || 3;
     this.timeout = opts.timeout || 30000;
     this.retryDelay = opts.retryDelay || 1000;
@@ -21,6 +24,7 @@ class Queue {
     this._running = new Set();
     this._paused = false;
     this._stats = { completed: 0, failed: 0, retried: 0 };
+    this._totalEnqueued = 0;
     
     this._onComplete = opts.onComplete || null;
     this._onError = opts.onError || null;
@@ -77,6 +81,9 @@ class Queue {
     } else {
       this._queue.splice(insertIdx, 0, task);
     }
+    
+    this._totalEnqueued++;
+    this.emit('task:queued', taskId);
     
     // Defer processing to allow batch enqueue in same tick
     if (!this._processScheduled) {
@@ -175,13 +182,19 @@ class Queue {
     if (this.idle && this._onDrain) {
       this._onDrain();
     }
+    if (this.idle) {
+      this.emit('drain');
+    }
   }
 
   async _execute(task) {
+    this.emit('task:start', task.taskId);
     const timer = setTimeout(() => {
       task.reject(new Error(`Task timed out after ${task.timeout}ms`));
       this._running.delete(task);
       this._stats.failed++;
+      this.emit('task:fail', task.taskId, new Error(`Task timed out after ${task.timeout}ms`));
+      this.emit('progress', this._stats.completed, this._totalEnqueued);
       this._processNext();
     }, task.timeout);
 
@@ -190,6 +203,8 @@ class Queue {
       clearTimeout(timer);
       this._running.delete(task);
       this._stats.completed++;
+      this.emit('task:complete', task.taskId, result);
+      this.emit('progress', this._stats.completed, this._totalEnqueued);
       if (this._onComplete) this._onComplete(result);
       task.resolve(result);
     } catch (err) {
@@ -198,6 +213,7 @@ class Queue {
       if (task.retries < this.maxRetries) {
         task.retries++;
         this._stats.retried++;
+        this.emit('task:retry', task.taskId, task.retries, err);
         
         // Re-enqueue with delay
         setTimeout(() => {
@@ -208,6 +224,8 @@ class Queue {
       } else {
         this._running.delete(task);
         this._stats.failed++;
+        this.emit('task:fail', task.taskId, err);
+        this.emit('progress', this._stats.completed, this._totalEnqueued);
         task.reject(err);
         if (this._onError) this._onError(err);
       }

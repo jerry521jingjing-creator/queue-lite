@@ -15,9 +15,9 @@ const EventEmitter = require('events');
 class Queue extends EventEmitter {
   constructor(opts = {}) {
     super();
-    this.concurrency = opts.concurrency || 3;
-    this.timeout = opts.timeout || 30000;
-    this.retryDelay = opts.retryDelay || 1000;
+    this.concurrency = opts.concurrency != null ? opts.concurrency : 3;
+    this.timeout = opts.timeout != null ? opts.timeout : 30000;
+    this.retryDelay = opts.retryDelay != null ? opts.retryDelay : 1000;
     this.maxRetries = opts.maxRetries != null ? opts.maxRetries : 3;
     this.rateLimit = opts.rateLimit || 0; // tasks per second, 0 = unlimited
     this.rateBurst = opts.rateBurst || opts.rateLimit || 0;
@@ -78,7 +78,7 @@ class Queue extends EventEmitter {
     const task = {
       taskId,
       fn,
-      priority: opts.priority || 0,
+      priority: opts.priority != null ? opts.priority : 0,
       timeout: opts.timeout || this.timeout,
       retries: 0,
       resolve: _resolve,

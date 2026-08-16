@@ -1,0 +1,77 @@
+{
+  "experiment": "017",
+  "name": "Predictive Product Engineering",
+  "repo": "https://github.com/jerry521jingjing-creator/queue-lite",
+  "status": "COMPLETE",
+  "method": "Code risk scanning + predictive analysis (no user reports)",
+  "analysis_inputs": {
+    "code_complexity": "286 LOC, 46 methods, 10 event emissions",
+    "test_coverage": "51 tests, 9 test files, all core features covered",
+    "risk_patterns": "Async, timers, concurrent Set ops, Map growth",
+    "issue_history": "21 issues, 22 PRs"
+  },
+  "risks_found": [
+    {
+      "id": "RISK-001",
+      "severity": "HIGH",
+      "title": "drainAll() chaining bug",
+      "description": "Multiple drainAll() calls overwrite callback — only last resolves",
+      "status": "FIXED (PR #22)",
+      "test_added": true
+    },
+    {
+      "id": "RISK-002",
+      "severity": "MEDIUM",
+      "title": "cancel() on running task is no-op",
+      "description": "User might expect cancel to abort running task",
+      "status": "DOCUMENTED (acceptable behavior)"
+    },
+    {
+      "id": "RISK-003",
+      "severity": "LOW",
+      "title": "Retry delay linear growth",
+      "description": "delay = retryDelay * retries (linear, not exponential)",
+      "status": "ACCEPTED (by design)"
+    },
+    {
+      "id": "RISK-004",
+      "severity": "LOW",
+      "title": "Rate token float precision",
+      "description": "Very long runs could accumulate floating-point drift",
+      "status": "MONITORING (negligible in practice)"
+    }
+  ],
+  "proactive_issues": [
+    {"number": 21, "title": "drainAll chaining bug", "state": "CLOSED"}
+  ],
+  "preventive_fixes": [
+    {"pr": 22, "title": "drainAll chaining fix", "state": "MERGED"}
+  ],
+  "cycle": {
+    "observe": "Code risk scanning — found 4 potential risks",
+    "analyze": "drainAll chaining is HIGH severity (silent data loss)",
+    "prioritize": "Fix HIGH risk first, document MEDIUM, accept LOW",
+    "implement": "drainAll() callback array pattern",
+    "release": "PR #22 merged",
+    "measure": "55/55 tests pass, chaining bug eliminated"
+  },
+  "code_metrics": {
+    "tests": 55,
+    "test_files": 10,
+    "source_loc": 286,
+    "risks_found": 4,
+    "risks_fixed": 1,
+    "risks_documented": 1,
+    "risks_accepted": 2
+  },
+  "lessons": [
+    "Code risk scanning finds bugs before users do",
+    "Silent data loss (drainAll) is highest priority",
+    "Not all risks need fixing — some are acceptable by design",
+    "Predictive maintenance requires systematic analysis, not guessing"
+  ],
+  "linkdoctor": {
+    "tests": 229,
+    "status": "UNCHANGED"
+  }
+}

@@ -1,0 +1,10 @@
+# Exclude experiment docs, keep only source
+docs/
+examples/
+.github/
+.gitignore
+.env
+.env.example
+*.test.js
+holdout/
+eval-*.json

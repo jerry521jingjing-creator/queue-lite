@@ -34,6 +34,17 @@ class Queue {
    * @returns {Promise} resolves with task result
    */
   push(fn, opts = {}) {
+    // Input validation
+    if (typeof fn !== 'function') {
+      throw new TypeError(`push() expected a function, got ${typeof fn}`);
+    }
+    if (opts.priority != null && typeof opts.priority !== 'number') {
+      throw new TypeError(`options.priority expected a number, got ${typeof opts.priority}`);
+    }
+    if (opts.timeout != null && (typeof opts.timeout !== 'number' || opts.timeout <= 0)) {
+      throw new TypeError(`options.timeout must be a positive number, got ${opts.timeout}`);
+    }
+    
     const taskId = `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     let _resolve, _reject;
     

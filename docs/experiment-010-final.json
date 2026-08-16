@@ -1,0 +1,76 @@
+{
+  "experiment": "010",
+  "name": "GitHub Native Engineering Loop",
+  "repo": "https://github.com/jerry521jingjing-creator/queue-lite",
+  "status": "COMPLETE",
+  "github_auth": "gh CLI authenticated as jerry521jingjing-creator",
+  "workflow": "Issue → Branch → Code → Test → PR → Review → Merge → Lesson",
+  "initial": {
+    "commit": "4f2db11",
+    "tests": 9,
+    "pass": 8,
+    "fail": 1
+  },
+  "final": {
+    "commit": "db9bbc7",
+    "tests": 26,
+    "pass": 26,
+    "fail": 0
+  },
+  "github_issues": [
+    {
+      "number": 1,
+      "title": "push() should return a unique task ID",
+      "state": "CLOSED",
+      "url": "https://github.com/jerry521jingjing-creator/queue-lite/issues/1"
+    },
+    {
+      "number": 2,
+      "title": "stats() returns stale data after task completes",
+      "state": "CLOSED",
+      "url": "https://github.com/jerry521jingjing-creator/queue-lite/issues/2"
+    },
+    {
+      "number": 3,
+      "title": "Add drainAll() method",
+      "state": "CLOSED",
+      "url": "https://github.com/jerry521jingjing-creator/queue-lite/issues/3"
+    }
+  ],
+  "github_prs": [
+    {
+      "number": 4,
+      "title": "feat: push() returns taskId, promise, cancel()",
+      "state": "MERGED",
+      "branch": "feat/task-ids",
+      "review": "APPROVE",
+      "url": "https://github.com/jerry521jingjing-creator/queue-lite/pull/4"
+    },
+    {
+      "number": 5,
+      "title": "fix: stats accuracy + drainAll()",
+      "state": "MERGED",
+      "branch": "fix/stats-and-drainall",
+      "review": "APPROVE",
+      "url": "https://github.com/jerry521jingjing-creator/queue-lite/pull/5"
+    }
+  ],
+  "git_commits": [
+    "db9bbc7 fix: stats accuracy + drainAll()",
+    "dc8c36b feat: push() returns taskId, promise, cancel()",
+    "bbad708 Merge PR #3: Add drainAll() method",
+    "9c0de95 Merge PR #2: Fix pause/resume race condition",
+    "4239601 Merge PR #1: Fix priority ordering with deferred processing",
+    "4f2db11 v1.0.0: initial release"
+  ],
+  "lessons": [
+    "Microtask batching (Promise.resolve().then) for event-driven priority queues",
+    "Stats must update before resolve() to avoid stale reads",
+    "pause/resume must cancel deferred processing to prevent race conditions",
+    "Branch-per-fix workflow ensures clean reviewable history"
+  ],
+  "linkdoctor": {
+    "tests": 229,
+    "status": "UNCHANGED"
+  }
+}

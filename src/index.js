@@ -25,7 +25,7 @@ class Queue extends EventEmitter {
     this._queue = [];
     this._running = new Set();
     this._paused = false;
-    this._stats = { completed: 0, failed: 0, retried: 0, deduplicated: 0 };
+    this._stats = { completed: 0, failed: 0, retried: 0, deduplicated: 0, rateLimited: 0 };
     this._totalEnqueued = 0;
     this._dedupKeys = new Set(); // for dedup tracking
     this._rateTokens = this.rateBurst;
@@ -96,6 +96,7 @@ class Queue extends EventEmitter {
       this._refillTokens();
       if (this._rateTokens <= 0) {
         if (task.dedupKey) this._dedupKeys.delete(task.dedupKey);
+        this._stats.rateLimited++;
         _reject(new Error('Rate limit exceeded'));
         return { taskId, promise, cancel: () => false };
       }

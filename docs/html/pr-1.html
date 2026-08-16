@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h1>Pull Request #1</h1>
+
+<h2>Fix: Priority ordering with deferred processing</h2>
+
+<h3>Problem</h3>
+<p>Tasks with higher priority were not executing before lower-priority tasks when enqueued in the same tick.</p>
+
+<h3>Solution</h3>
+<p>Deferred <code>_processNext()</code> call using <code>Promise.resolve().then()</code> to batch all synchronous <code>push()</code> calls before processing begins.</p>
+
+<h3>Changes</h3>
+<li><code>src/index.js</code>: Added <code>_processScheduled</code> flag and microtask deferral</li>
+<li>No new dependencies</li>
+
+<h3>Testing</h3>
+<li>All 9 existing tests pass</li>
+<li>Priority ordering test now passes (was failing)</li>
+<li>No regressions in retry/timeout/concurrency</li>
+
+<h3>Acceptance Criteria</h3>
+<li>[x] Higher-priority tasks execute before lower-priority tasks</li>
+<li>[x] Existing 9 passing tests continue to pass</li>
+<li>[x] New test verifies priority ordering with concurrent enqueue</li>
+<li>[x] No regression in retry/timeout/concurrency behavior</li>
+
+<h3>Reviewer Checklist</h3>
+<li>[ ] Code style consistent</li>
+<li>[ ] No unintended side effects</li>
+<li>[ ] Edge cases handled (empty queue, single task)</li>
+<li>[ ] Performance impact acceptable</li>
+</body>
+</html>

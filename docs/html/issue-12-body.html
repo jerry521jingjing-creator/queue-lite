@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h2>User Feedback</h2>
+<p>> "I'm building a CLI tool that processes 1000 files in parallel. The concurrency control is perfect, but I wish there was a way to see real-time progress — like a progress bar or event emitter for task completion." — @cli_hunter</p>
+
+<h2>Proposal</h2>
+<p>Add progress events via EventEmitter:</p>
+<li>queue.on('task:complete', (taskId, result) => {})</li>
+<li>queue.on('task:fail', (taskId, error) => {})</li>
+<li>queue.on('drain', () => {})</li>
+<li>queue.on('progress', (completed, total) => {})</li>
+
+<h2>Acceptance Criteria</h2>
+<li>[ ] Queue extends EventEmitter (or wraps it)</li>
+<li>[ ] Events fire for each task lifecycle stage</li>
+<li>[ ] Progress event includes completed/total counts</li>
+<li>[ ] Test coverage for all events</li>
+</body>
+</html>

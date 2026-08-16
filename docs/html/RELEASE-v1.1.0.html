@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h2>v1.1.0 Release</h2>
+
+<h3>New Features</h3>
+<li><strong>TypeScript definitions</strong> — Full .d.ts with type overloads for all events (#6)</li>
+<li><strong>Progress events</strong> — EventEmitter integration: task:queued, task:start, task:complete, task:fail, task:retry, progress, drain (#8)</li>
+<li><strong>Input validation</strong> — push() validates fn is a function, opts are correct types (#7)</li>
+
+<h3>Bug Fixes</h3>
+<li>Stats accuracy — completed count updated before resolve() (#2)</li>
+<li>Pause/resume race condition (#2)</li>
+<li>Priority ordering with deferred processing (#1)</li>
+
+<h3>Test Coverage</h3>
+<li>40 tests, all passing</li>
+<li>Event tests, validation tests, integration tests</li>
+
+<h3>Breaking Changes</h3>
+<li>push() now returns { taskId, promise, cancel() } instead of bare Promise (#1)</li>
+
+<h3>Upgrade Guide</h3>
+<p>``<code>js</p>
+<p>// Before</p>
+<p>const result = await queue.push(fn);</p>
+
+<p>// After</p>
+<p>const { promise, taskId, cancel } = queue.push(fn);</p>
+<p>const result = await promise;</p>
+<p></code>``</p>
+</body>
+</html>

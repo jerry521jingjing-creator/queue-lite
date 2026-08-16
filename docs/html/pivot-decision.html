@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h1>Strategic Pivot — v1.3.0</h1>
+
+<h2>Pivot Decision</h2>
+
+<p><strong>FROM:</strong> Building more queue features (rate limit, dedup, persistence)</p>
+<p><strong>TO:</strong> Building adoption infrastructure (README, CI/CD, npm, docs)</p>
+
+<h2>Rationale</h2>
+
+<p>| Before Pivot | After Pivot |</p>
+<p>|-------------|-------------|</p>
+<p>| "What features should we build?" | "How do we get users?" |</p>
+<p>| Rate limiting, dedup, persistence | README, CI/CD, npm publish, examples |</p>
+<p>| Internal metrics only | Real user metrics |</p>
+<p>| Feature-complete | Adoption-ready |</p>
+
+<h2>New Roadmap</h2>
+
+<h3>v1.3.0 — Adoption Release (NOT features)</h3>
+<p>1. <strong>README overhaul</strong> — Usage examples, API reference, comparison table</p>
+<p>2. <strong>GitHub Actions CI</strong> — Test on push, lint, coverage</p>
+<p>3. <strong>npm publish</strong> — Make it installable</p>
+<p>4. <strong>Contributing guide</strong> — How to add features</p>
+<p>5. <strong>Real-world examples</strong> — API server, CLI tool, batch processor</p>
+
+<h3>What We're NOT Building (Anti-Features confirmed)</h3>
+<li>❌ Persistence plugin (nobody asked for it)</li>
+<li>❌ Dashboard UI (out of scope)</li>
+<li>❌ Worker threads (too complex for v1.x)</li>
+<li>❌ Pipeline/chain API (defer to v2.0)</li>
+
+<h2>Success Metric for v1.3.0</h2>
+<li>npm installs > 0 within 1 week</li>
+<li>GitHub stars > 0 within 1 month</li>
+<li>At least 1 external issue filed</li>
+</body>
+</html>

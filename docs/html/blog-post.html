@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h1>Why I Built queue-lite: A Zero-Dependency Task Queue for Node.js</h1></p><p><h2>The Problem</h2></p><p>Every Node.js project that needs to run tasks in parallel ends up with the same choice:</p><p>1. <strong>Bull/BullMQ</strong> — Powerful, but requires Redis. Overkill for 90% of use cases.
+<p>2. <strong>p-queue</strong> — Great for promises, but no retry, no timeout, no rate limiting.</p>
+<p>3. <strong>Roll your own</strong> — Everyone does it, everyone gets it wrong.</p><p>There's a gap: a queue that's <strong>zero-config</strong>, <strong>production-ready</strong>, and <strong>doesn't need Redis</strong>.</p><p><h2>What queue-lite Does</h2></p><p>``<code>js</p>
+<p>const Queue = require('queue-lite');</p><p>const q = new Queue({</p>
+<p>  concurrency: 5,      // max 5 parallel tasks</p>
+<p>  rateLimit: 100,      // 100 tasks/second</p>
+<p>  maxRetries: 3,       // retry failed tasks</p>
+<p>  timeout: 10000,      // 10s timeout per task</p>
+<p>});</p><p>// Push tasks</p>
+<p>const { taskId, promise, cancel } = q.push(async () => {</p>
+<p>  const result = await fetch('https://api.example.com/data');</p>
+<p>  return result.json();</p>
+<p>});</p><p>// Monitor progress</p>
+<p>q.on('task:complete', (id, result) => console.log('Done:', id));</p>
+<p>q.on('progress', (done, total) => console.log(</code>${done}/${total}<code>));</p><p>// Wait for all</p>
+<p>await q.drainAll();</p>
+<p></code>`<code></p><p><h2>Key Features</h2></p><p>| Feature | queue-lite | p-queue | BullMQ |</p>
+<p>|---------|-----------|---------|--------|</p>
+<p>| Zero dependencies | ✅ | ✅ | ❌ (Redis) |</p>
+<p>| TypeScript | ✅ | ✅ | ✅ |</p>
+<p>| Rate limiting | ✅ | ❌ | ✅ |</p>
+<p>| Task deduplication | ✅ | ❌ | ❌ |</p>
+<p>| Retry with backoff | ✅ | ❌ | ✅ |</p>
+<p>| Priority queue | ✅ | ✅ | ✅ |</p>
+<p>| Cancel tasks | ✅ | ✅ | ✅ |</p>
+<p>| Bundle size | ~5KB | ~3KB | 200KB+ |</p><p><h2>When to Use queue-lite</h2></p><p><li>API rate limiting</li></p>
+<li>Batch file processing</li>
+<li>Background job processing</li>
+<li>Webhook handling</li>
+<li>Anywhere you need "run N things in parallel"</li></p><p><h2>When NOT to Use queue-lite</h2></p><p><li>You need persistence (use BullMQ)</li>
+<li>You need a dashboard (use BullMQ)</li>
+<li>You need distributed workers (use BullMQ)</li></p><p><h2>Installation</h2></p><p></code>`<code>bash
+<p>npm install queue-lite</p>
+<p></code>`<code></p><p><h2>Try It</h2></p><p></code>`<code>bash</p>
+<p>git clone https://github.com/jerry521jingjing-creator/queue-lite.git</p>
+<p>cd queue-lite</p>
+<p>npm test</p>
+<p></code>``</p><p><h2>Links</h2></p><p><li>[GitHub](https://github.com/jerry521jingjing-creator/queue-lite)</li></p>
+<li>[npm](https://npmjs.com/package/queue-lite) (coming soon)</li>
+<li>[API Reference](https://github.com/jerry521jingjing-creator/queue-lite#api-reference)</li></p><p>---</p><p><em>If you try queue-lite, I'd love to hear your feedback. Open an issue or start a discussion on GitHub.</em>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Document</title></head>
+<body><h2>User Feedback</h2>
+<p>> "Please add input validation. If someone passes a non-function to push(), it fails silently or throws a cryptic error." — @security_alex</p>
+
+<h2>Proposal</h2>
+<p>Add validation at push() entry:</p>
+<li>fn must be a function</li>
+<li>opts.priority must be a number</li>
+<li>opts.timeout must be a positive number</li>
+<li>Throw descriptive TypeError on invalid input</li>
+
+<h2>Acceptance Criteria</h2>
+<li>[ ] push(nonFunction) throws TypeError</li>
+<li>[ ] push(fn, { priority: "bad" }) throws TypeError</li>
+<li>[ ] Error messages are descriptive</li>
+<li>[ ] All existing tests pass</li>
+</body>
+</html>

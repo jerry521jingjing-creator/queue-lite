@@ -1,0 +1,77 @@
+{
+  "experiment": "016",
+  "name": "Autonomous Product Operator",
+  "repo": "https://github.com/jerry521jingjing-creator/queue-lite",
+  "status": "COMPLETE",
+  "method": "Continuous dogfooding with real use cases",
+  "use_cases": [
+    {
+      "name": "Batch MD→HTML converter",
+      "experiment": "015-Dogfood",
+      "friction_found": 2,
+      "bugs_found": 1,
+      "bugs_fixed": 1
+    },
+    {
+      "name": "File watcher CLI",
+      "experiment": "016",
+      "friction_found": 1,
+      "bugs_found": 0,
+      "bugs_fixed": 0,
+      "documentation_issues": 1
+    }
+  ],
+  "total_friction_points": [
+    {
+      "id": "FP-001",
+      "type": "module_format",
+      "severity": "medium",
+      "status": "documented"
+    },
+    {
+      "id": "FP-002",
+      "type": "stats_inaccuracy",
+      "severity": "high",
+      "status": "fixed (PR #17)"
+    },
+    {
+      "id": "FP-004",
+      "type": "push_rejection_handling",
+      "severity": "medium",
+      "status": "fixed in examples, Issue #19 created"
+    }
+  ],
+  "cycle": {
+    "observe": "file-watcher-cli.js crashes on rate limit",
+    "analyze": "push() rejection not caught in examples",
+    "prioritize": "Medium — documentation/example fix",
+    "implement": "Fixed all push() calls to catch rejections",
+    "release": "PR #20 merged",
+    "measure": "51/51 tests pass, examples work correctly"
+  },
+  "releases": [
+    "v1.1.0 — TypeScript, Validation, Events",
+    "v1.2.0 — Rate Limiting, Dedup",
+    "v1.3.0 — Adoption (Pivot)"
+  ],
+  "metrics": {
+    "use_cases_tested": 2,
+    "friction_points_found": 3,
+    "bugs_found": 1,
+    "bugs_fixed": 1,
+    "issues_created": 3,
+    "prs_merged": 4,
+    "tests": 51,
+    "total_commits": 17
+  },
+  "lessons": [
+    "Rate-limited tasks must be visible in stats (fixed in v1.3.0+)",
+    "Examples must handle promise rejections for rate limit/dedup",
+    "One real use case reveals more than 100 simulated tests",
+    "Dogfooding should be continuous, not one-shot"
+  ],
+  "linkdoctor": {
+    "tests": 229,
+    "status": "UNCHANGED"
+  }
+}

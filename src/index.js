@@ -108,6 +108,21 @@ class Queue {
   }
 
   /**
+   * Wait for all tasks to complete
+   * @returns {Promise} resolves when queue is empty and no tasks running
+   */
+  drainAll() {
+    if (this.idle) return Promise.resolve();
+    return new Promise(resolve => {
+      const origDrain = this._onDrain;
+      this._onDrain = () => {
+        if (origDrain) origDrain();
+        resolve();
+      };
+    });
+  }
+
+  /**
    * Check if queue is idle (no running or pending tasks)
    */
   get idle() {
